@@ -1,18 +1,15 @@
 package org.example.interfaces_contadores;
+
 import javax.swing.*;
 import java.awt.*;
 
 public class Contadores {
     public static void main(String[] args) {
 
-        Contador contador = new Contador();
-        Contador contador2 = new Contador();
-        contador.start();
-        contador2.start();
-
-        JFrame frame = new JFrame("Iniciar contadores");
+        JFrame frame = new JFrame("Iniciar contadores :)");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(300, 300);
+        frame.setSize(300, 200);
+
         frame.setLayout(new BorderLayout());
 
         JPanel panel = new JPanel();
@@ -28,18 +25,17 @@ public class Contadores {
         lbl2.setAlignmentX(Component.CENTER_ALIGNMENT);
         btn2.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        panel.add(Box.createVerticalStrut(10));
         panel.add(lbl1);
-        panel.add(Box.createVerticalStrut(5));
         panel.add(btn1);
-        panel.add(Box.createVerticalStrut(10));
         panel.add(lbl2);
-        panel.add(Box.createVerticalStrut(5));
         panel.add(btn2);
-        panel.add(Box.createVerticalStrut(10));
 
-        btn1.addActionListener(e -> contador.toggleRunning());
-        btn2.addActionListener(e -> contador2.toggleRunning());
+        Contador counter1 = new Contador(lbl1, btn1);
+        Contador counter2 = new Contador(lbl2, btn2);
+
+        btn1.addActionListener(e -> counter1.toggleRunning());
+        btn2.addActionListener(e -> counter2.toggleRunning());
+
 
         frame.add(panel, BorderLayout.CENTER);
         frame.setVisible(true);
@@ -47,31 +43,34 @@ public class Contadores {
 }
 
 class Contador extends Thread {
-    private int count = 0;
+    private int counter = 0;
     private boolean running = false;
+    private final JLabel label;
+    private final JButton button;
 
-    public void stopCount() {
-        running = false;
+    public Contador(JLabel label, JButton button) {
+        this.label = label;
+        this.button = button;
+        this.start();
     }
 
     @Override
     public void run() {
         try {
-            while (running) {
-                System.out.println(count++);
-                Thread.sleep(500);
+            while (true) {
+                if (running) {
+                    counter++;
+                    label.setText("Contador: " + counter);
+                    button.setText("Detener");
+                }
+
+                if (!running && counter > 0) button.setText("Continuar");
+
+                Thread.sleep(1000);
             }
         } catch (InterruptedException e) {
-            throw new RuntimeException(e);
+            System.out.println(e.getMessage());
         }
-    }
-
-    public void setRunning(boolean running) {
-        this.running = running;
-    }
-
-    public int getCount() {
-        return count;
     }
 
     public void toggleRunning() {
