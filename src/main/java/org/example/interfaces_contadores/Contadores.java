@@ -36,7 +36,6 @@ public class Contadores {
         btn1.addActionListener(e -> counter1.toggleRunning());
         btn2.addActionListener(e -> counter2.toggleRunning());
 
-
         frame.add(panel, BorderLayout.CENTER);
         frame.setVisible(true);
     }
