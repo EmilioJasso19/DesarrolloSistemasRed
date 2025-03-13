@@ -2,51 +2,67 @@ package org.example.cliente_servidor;
 
 import java.net.*;
 import java.io.*;
+import java.util.Scanner;
 
 public class Server {
 
-    private Socket s = null;
-    private ServerSocket ss = null;
+    private Socket socket = null;
+    private ServerSocket serverSocket = null;
     private DataInputStream in = null;
-    private DataOutputStream out = null; // Agregamos un DataOutputStream
+    private DataOutputStream out = null;
 
-    public Server(int port) {
+    public Server(int port) throws IOException {
         try {
-            ss = new ServerSocket(port);
+            serverSocket = new ServerSocket(port);
             System.out.println("Server started");
             System.out.println("Waiting for a client ...");
 
-            s = ss.accept();
+            socket = serverSocket.accept();
             System.out.println("Client accepted");
 
-            in = new DataInputStream(new BufferedInputStream(s.getInputStream()));
-            out = new DataOutputStream(s.getOutputStream()); // Inicializamos el output stream
+            in = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
+            out = new DataOutputStream(socket.getOutputStream());
 
             String m = "";
 
-            while (!m.equals("Over")) {
+            while (true) {
                 try {
                     m = in.readUTF();
                     System.out.println("Client says: " + m);
 
-                    // Enviar respuesta al cliente
-                    out.writeUTF("Server received: " + m);
+                    if (m.equals("Over")) {
+                        break;
+                    }
+
+                    String serverResponse = new Scanner(System.in).nextLine();
+                    if (serverResponse.equals("Over")) {
+                        break;
+                    } else {
+                        out.writeUTF(serverResponse);
+                    }
                 } catch (IOException i) {
                     System.out.println(i);
+                    break;
                 }
             }
 
+
             System.out.println("Closing connection");
 
-            s.close();
+            socket.close();
             in.close();
-            out.close(); // Cerrar el output stream
+            out.close();
         } catch (IOException i) {
-            System.out.println(i);
+            throw i;
         }
     }
 
+
     public static void main(String[] args) {
-        Server s = new Server(5000);
+        try {
+            Server s = new Server(5000);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
